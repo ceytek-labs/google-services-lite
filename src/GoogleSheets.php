@@ -9,13 +9,13 @@ use Google\Service\Sheets\ValueRange;
 
 class GoogleSheets
 {
-    private Client $client;
+    private $client;
 
-    private ?string $id = null;
+    private $id = null;
 
-    private ?array $values = null;
+    private $values = null;
 
-    private ?string $page = null;
+    private $page = null;
 
     public static function make(): self
     {
