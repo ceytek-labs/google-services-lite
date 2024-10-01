@@ -17,7 +17,7 @@ composer require ceytek-labs/google-services-lite
 
 ## Gereklilikler
 
-- PHP 7.4 veya daha üstü
+- PHP 7.2 veya daha üstü
 
 ## Google Sheets API Kullanımı
 
