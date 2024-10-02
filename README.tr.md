@@ -38,16 +38,13 @@ Aşağıdaki örnek, Google Sheets'teki bir sayfada nasıl veri güncelleyeceği
 ```php
 use CeytekLabs\GoogleServicesLite\GoogleSheets;
 
-$result = GoogleSheets::make()
-    ->setCredentials(__DIR__.'/credentials.json') // Kimlik doğrulama dosyasını ayarlayın
-    ->setId('SPREADSHEET_ID')                     // Güncellemek istediğiniz Google Sheets dokümanının ID'sini girin
-    ->setPage('Sheet1')                           // Veri güncellemek istediğiniz sayfanın adını belirtin
-    ->setValues([
-        ["Veri 1", "Veri 2", "Veri 3"],
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin kimliğini belirle
+    ->setCredentials(__DIR__.'/credentials.json') // Kimlik doğrulama dosyasını ayarla
+    ->update('Sheet1', [                          // Verilerin güncelleneceği sekmenin adını belirle
+        ["Veri 1", "Veri 2", "Veri 3"],           // Güncellenecek verileri ekle
         ["Veri 4", "Veri 5", "Veri 6"],
         ["Veri 7", "Veri 8", "Veri 9"],
-    ])                                            // Güncellemek istediğiniz verileri ekleyin
-    ->update();                                   // Verileri güncelleyin
+    ]);
 
 echo 'Güncellenen hücre sayısı: ' . $result['updated_cells_count'];
 ```

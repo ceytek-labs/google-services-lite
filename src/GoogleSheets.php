@@ -9,20 +9,21 @@ use Google\Service\Sheets\ValueRange;
 
 class GoogleSheets
 {
-    private $client;
-
     private $id = null;
 
-    private $values = null;
+    private $client;
 
-    private $page = null;
-
-    public static function make(): self
+    public static function make(string $id = null): self
     {
+        if (is_null($id)) {
+            throw new \Exception('Spreadsheet id must be filled');
+        }
+
         $instance = new self;
 
-        $instance->client = new Client();
+        $instance->id = $id;
 
+        $instance->client = new Client();
         $instance->client->setApplicationName("Google Sheets API PHP Quickstart");
         $instance->client->addScope(Sheets::DRIVE);
         $instance->client->setAccessType('offline');
@@ -58,48 +59,21 @@ class GoogleSheets
         return $this;
     }
 
-    public function setId(string $id): self
+    public function update(string $page = null, array $values = []): array
     {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function setPage(string $page): self
-    {
-        $this->page = $page;
-
-        return $this;
-    }
-
-    public function setValues(array $values): self
-    {
-        $this->values = $values;
-
-        return $this;
-    }
-
-    public function update(): array
-    {
-        if (is_null($this->id)) {
-            throw new \Exception('Spreadsheet id must be filled');
-        }
-
-        if (is_null($this->page)) {
+        if (is_null($page)) {
             throw new \Exception('Spreadsheet page must be filled');
         }
 
-        if (is_null($this->values)) {
+        if (empty($values)) {
             throw new \Exception('Spreadsheet values must be filled');
         }
 
         $service = new Sheets($this->client);
 
-        $service->spreadsheets_values->clear($this->id, $this->page, new ClearValuesRequest());
+        $service->spreadsheets_values->clear($this->id, $page, new ClearValuesRequest());
 
-        $body = new ValueRange(['values' => $this->values]);
-
-        $result = $service->spreadsheets_values->update($this->id, $this->page, $body, ['valueInputOption' => 'RAW']);
+        $result = $service->spreadsheets_values->update($this->id, $page, new ValueRange(['values' => $values]), ['valueInputOption' => 'RAW']);
 
         return [
             'updated_cells_count' => $result->getUpdatedCells(),

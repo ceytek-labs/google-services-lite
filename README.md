@@ -38,16 +38,13 @@ The following example demonstrates how to update data in a Google Sheets documen
 ```php
 use CeytekLabs\GoogleServicesLite\GoogleSheets;
 
-$result = GoogleSheets::make()
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sheets document
     ->setCredentials(__DIR__.'/credentials.json') // Set the authentication file
-    ->setId('SPREADSHEET_ID')                     // Set the ID of the Google Sheets document
-    ->setPage('Sheet1')                           // Set the name of the tab where data will be updated
-    ->setValues([
-        ["Data 1", "Data 2", "Data 3"],
+    ->update('Sheet1', [                          // Set the name of the tab where data will be updated
+        ["Data 1", "Data 2", "Data 3"],           // Add the data to be updated
         ["Data 4", "Data 5", "Data 6"],
         ["Data 7", "Data 8", "Data 9"],
-    ])                                            // Add the data to be updated
-    ->update();                                   // Perform the update
+    ]);
 
 echo 'Number of updated cells: ' . $result['updated_cells_count'];
 ```
