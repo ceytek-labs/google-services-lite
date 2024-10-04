@@ -167,12 +167,20 @@ class GoogleSheets
             $rowData = [];
 
             foreach ($row as $colIndex => $value) {
-                $cleanedValue = is_string($value) ? mb_convert_encoding($value, 'UTF-8', 'auto') : $value;
+                if (is_string($value)) {
+                    $detectedEncoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'Windows-1252', 'ASCII'], true);
+            
+                    if ($detectedEncoding === false) {
+                        $detectedEncoding = 'Windows-1252';
+                    }
+            
+                    $value = mb_convert_encoding($value, 'UTF-8', $detectedEncoding);
+                }
             
                 $cellData = new CellData([
-                    'userEnteredValue' => is_numeric($cleanedValue)
-                        ? ['numberValue' => (float)$cleanedValue]
-                        : ['stringValue' => (string)$cleanedValue]
+                    'userEnteredValue' => is_numeric($value)
+                        ? ['numberValue' => (float) $value]
+                        : ['stringValue' => (string) $value]
                 ]);
 
                 $rowData[] = $cellData;
