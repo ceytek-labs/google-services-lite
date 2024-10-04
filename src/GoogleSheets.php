@@ -79,4 +79,60 @@ class GoogleSheets
             'updated_cells_count' => $result->getUpdatedCells(),
         ];
     }
+
+    /**
+     * Google Sheets API Limits:
+     * - Maximum number of cells that can be updated in a single request: 10,000 cells.
+     * - Maximum write requests per user per minute: 60 requests.
+     *
+     * Therefore, you need to consider these limits when updating your data.
+     * For example, if you update 500 rows and 10 columns in each request,
+     * this amounts to 5,000 cells and stays within the limits.
+     */
+    public function updateInChunks(string $page = null, array $values = [], int $chunkSize = 500): array
+    {
+        if (is_null($page)) {
+            throw new \Exception('Spreadsheet page must be filled');
+        }
+
+        if (empty($values)) {
+            throw new \Exception('Spreadsheet values must be filled');
+        }
+
+        $service = new Sheets($this->client);
+
+        $service->spreadsheets_values->clear($this->id, $page, new ClearValuesRequest());
+
+        $chunks = array_chunk($values, $chunkSize);
+
+        $startRow = 1;
+        
+        $updatedCellsCount = 0;
+
+        foreach ($chunks as $chunk) {
+            $endRow = $startRow + count($chunk) - 1;
+
+            $range = $page . '!A' . $startRow;
+
+            $valueRange = new ValueRange([
+                'range' => $range,
+                'values' => $chunk,
+            ]);
+
+            $result = $service->spreadsheets_values->update(
+                $this->id,
+                $range,
+                $valueRange,
+                ['valueInputOption' => 'RAW']
+            );
+
+            $updatedCellsCount += $result->getUpdatedCells();
+
+            $startRow = $endRow + 1;
+        }
+
+        return [
+            'updated_cells_count' => $updatedCellsCount,
+        ];
+    }
 }

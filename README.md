@@ -49,6 +49,21 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sh
 echo 'Number of updated cells: ' . $result['updated_cells_count'];
 ```
 
+```php
+use CeytekLabs\GoogleServicesLite\GoogleSheets;
+
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sheets document
+    ->setCredentials(__DIR__.'/credentials.json') // Set the authentication file
+    ->updateInChunks('Sheet1', [                  // Update data in smaller chunks
+        ["Data 1", "Data 2", "Data 3"],           // Add the data to be updated
+        ["Data 4", "Data 5", "Data 6"],
+        ["Data 7", "Data 8", "Data 9"],           // For large datasets, the data will be split into chunks
+    ], 500);                                      // Define the chunk size (e.g., 500 rows)
+
+echo 'Number of updated cells: ' . $result['updated_cells_count'];
+
+```
+
 ## Contributing
 
 Feel free to submit a **pull request** or report an issue. Any contributions and feedback are highly appreciated!

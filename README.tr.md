@@ -49,6 +49,20 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin ki
 echo 'Güncellenen hücre sayısı: ' . $result['updated_cells_count'];
 ```
 
+```php
+use CeytekLabs\GoogleServicesLite\GoogleSheets;
+
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin kimliğini belirtin
+    ->setCredentials(__DIR__.'/credentials.json') // Kimlik doğrulama dosyasını belirtin
+    ->updateInChunks('Sheet1', [                  // Verileri küçük parçalara ayırarak güncelleyin
+        ["Data 1", "Data 2", "Data 3"],           // Güncellenecek verileri ekleyin
+        ["Data 4", "Data 5", "Data 6"],
+        ["Data 7", "Data 8", "Data 9"],           // Büyük veri setleri durumunda veriler parçalara ayrılacak
+    ], 500);                                      // Parça boyutunu (örneğin, 500 satır) belirleyin
+
+echo 'Güncellenen hücre sayısı: ' . $result['updated_cells_count'];
+```
+
 ## Katkıda Bulunma
 
 Katkıda bulunmak için bir **pull request** gönderebilir veya bir sorun bildirebilirsiniz. Her türlü katkı ve geri bildirim değerlidir!
