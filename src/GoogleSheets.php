@@ -188,6 +188,10 @@ class GoogleSheets
             ]);
         }
 
+        if (empty($requests)) {
+            throw new \Exception('No valid requests to send to Google Sheets API.');
+        }
+
         $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
             'requests' => $requests
         ]);
