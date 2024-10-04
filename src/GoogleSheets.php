@@ -136,17 +136,17 @@ class GoogleSheets
         if (is_null($page)) {
             throw new \Exception('Spreadsheet page must be filled');
         }
-
+    
         if (empty($values)) {
             throw new \Exception('Spreadsheet values must be filled');
         }
-
+    
         $service = new Sheets($this->client);
-
+    
         $spreadsheet = $service->spreadsheets->get($this->id);
 
         $sheets = $spreadsheet->getSheets();
-
+    
         $sheetId = null;
 
         foreach ($sheets as $sheet) {
@@ -156,48 +156,51 @@ class GoogleSheets
                 break;
             }
         }
-
+    
         if (is_null($sheetId)) {
             throw new \Exception('Sheet not found: ' . $page);
         }
-
+    
         $requests = [];
-
+    
         foreach ($values as $rowIndex => $row) {
             $rowData = [];
-            
+
             foreach ($row as $colIndex => $value) {
                 $cellData = new CellData([
                     'userEnteredValue' => is_numeric($value) 
                         ? ['numberValue' => (float)$value] 
                         : ['stringValue' => (string)$value]
                 ]);
+
                 $rowData[] = $cellData;
             }
-
-            $requests[] = new Request([
-                'updateCells' => [
-                    'start' => [
-                        'sheetId' => $sheetId, 
-                        'rowIndex' => $rowIndex,
-                        'columnIndex' => 0,
-                    ],
-                    'rows' => [new RowData(['values' => $rowData])],
-                    'fields' => 'userEnteredValue'
-                ]
-            ]);
+    
+            if (!empty($rowData)) {
+                $requests[] = new Request([
+                    'updateCells' => [
+                        'start' => [
+                            'sheetId' => $sheetId,
+                            'rowIndex' => $rowIndex,
+                            'columnIndex' => 0,
+                        ],
+                        'rows' => [new RowData(['values' => $rowData])],
+                        'fields' => 'userEnteredValue'
+                    ]
+                ]);
+            }
         }
-
+    
         if (empty($requests)) {
             throw new \Exception('No valid requests to send to Google Sheets API.');
         }
-
+    
         $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
             'requests' => $requests
         ]);
-
-        $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
-
+    
+        $response = $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+    
         return [
             'status' => true,
         ];
