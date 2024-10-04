@@ -4,7 +4,11 @@ namespace CeytekLabs\GoogleServicesLite;
 
 use Google\Service\Sheets;
 use Google\Client;
+use Google\Service\Sheets\BatchUpdateSpreadsheetRequest;
+use Google\Service\Sheets\CellData;
 use Google\Service\Sheets\ClearValuesRequest;
+use Google\Service\Sheets\Request;
+use Google\Service\Sheets\RowData;
 use Google\Service\Sheets\ValueRange;
 
 class GoogleSheets
@@ -80,15 +84,6 @@ class GoogleSheets
         ];
     }
 
-    /**
-     * Google Sheets API Limits:
-     * - Maximum number of cells that can be updated in a single request: 10,000 cells.
-     * - Maximum write requests per user per minute: 60 requests.
-     *
-     * Therefore, you need to consider these limits when updating your data.
-     * For example, if you update 500 rows and 10 columns in each request,
-     * this amounts to 5,000 cells and stays within the limits.
-     */
     public function updateInChunks(string $page = null, array $values = [], int $chunkSize = 500): array
     {
         if (is_null($page)) {
@@ -133,6 +128,71 @@ class GoogleSheets
 
         return [
             'updated_cells_count' => $updatedCellsCount,
+        ];
+    }
+
+    public function batchUpdate(string $page, array $values): array
+    {
+        if (is_null($page)) {
+            throw new \Exception('Spreadsheet page must be filled');
+        }
+
+        if (empty($values)) {
+            throw new \Exception('Spreadsheet values must be filled');
+        }
+
+        $service = new Sheets($this->client);
+
+        $spreadsheet = $service->spreadsheets->get($this->id);
+
+        $sheets = $spreadsheet->getSheets();
+
+        $sheetId = null;
+
+        foreach ($sheets as $sheet) {
+            if ($sheet->getProperties()->getTitle() === $page) {
+                $sheetId = $sheet->getProperties()->getSheetId();
+
+                break;
+            }
+        }
+
+        if (is_null($sheetId)) {
+            throw new \Exception('Sheet not found: ' . $page);
+        }
+
+        $requests = [];
+
+        foreach ($values as $rowIndex => $row) {
+            $rowData = [];
+            foreach ($row as $colIndex => $value) {
+                $cellData = new CellData([
+                    'userEnteredValue' => ['stringValue' => $value]
+                ]);
+                $rowData[] = $cellData;
+            }
+
+            $requests[] = new Request([
+                'updateCells' => [
+                    'start' => [
+                        'sheetId' => $sheetId, 
+                        'rowIndex' => $rowIndex,
+                        'columnIndex' => 0,
+                    ],
+                    'rows' => [new RowData(['values' => $rowData])],
+                    'fields' => 'userEnteredValue'
+                ]
+            ]);
+        }
+
+        $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+            'requests' => $requests
+        ]);
+
+        $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+
+        return [
+            'status' => true,
         ];
     }
 }

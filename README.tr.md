@@ -17,7 +17,7 @@ composer require ceytek-labs/google-services-lite
 
 ## Gereklilikler
 
-- PHP 7.2 veya daha üstü
+- PHP 7.0 veya daha üstü
 
 ## Google Sheets API Kullanımı
 
@@ -35,6 +35,8 @@ Google Sheets API'sine erişmek için gerekli kimlik doğrulama dosyasını indi
 
 Aşağıdaki örnek, Google Sheets'teki bir sayfada nasıl veri güncelleyeceğinizi gösterir:
 
+**update:** Belirtilen Google Sheets sekmesindeki verileri sağlanan yeni verilerle günceller ve tüm mevcut verileri değiştirir. Güncellenen hücre sayısını döndürür.
+
 ```php
 use CeytekLabs\GoogleServicesLite\GoogleSheets;
 
@@ -49,6 +51,8 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin ki
 echo 'Güncellenen hücre sayısı: ' . $result['updated_cells_count'];
 ```
 
+**updateInChunks:** `update` ile benzer şekilde çalışır ancak büyük veri setlerini daha küçük parçalara ayırarak API limitlerini aşmadan işler. Güncellenen toplam hücre sayısını döndürür.
+
 ```php
 use CeytekLabs\GoogleServicesLite\GoogleSheets;
 
@@ -61,6 +65,22 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin ki
     ], 500);                                      // Parça boyutunu (örneğin, 500 satır) belirleyin
 
 echo 'Güncellenen hücre sayısı: ' . $result['updated_cells_count'];
+```
+
+**batchUpdate:** Google Sheets sekmesindeki belirli hücreleri toplu bir istekle günceller, her bir hücre üzerinde daha fazla kontrol sağlar. Güncelleme durumunu (başarı ya da başarısızlık) döndürür.
+
+```php
+use CeytekLabs\GoogleServicesLite\GoogleSheets;
+
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin kimliğini belirleyin
+    ->setCredentials(__DIR__.'/credentials.json') // Kimlik doğrulama dosyasını ayarlayın
+    ->batchUpdate('Sheet1', [                     // Verilerin güncelleneceği sekmenin adını belirleyin
+        ["Veri 1", "Veri 2", "Veri 3"],           // Güncellenecek verileri ekleyin
+        ["Veri 4", "Veri 5", "Veri 6"],
+        ["Veri 7", "Veri 8", "Veri 9"],
+    ]);
+
+echo 'Toplu güncelleme durumu: ' . ($result['status'] ? 'Başarılı' : 'Başarısız');
 ```
 
 ## Katkıda Bulunma

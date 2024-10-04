@@ -17,7 +17,7 @@ composer require ceytek-labs/google-services-lite
 
 ## Requirements
 
-- PHP 7.2 or higher
+- PHP 7.0 or higher
 
 ## Google Sheets API Usage
 
@@ -35,6 +35,8 @@ To use the Google Sheets API, you need to download the required authentication f
 
 The following example demonstrates how to update data in a Google Sheets document:
 
+**update:** Updates the specified Google Sheets tab with the provided data, replacing all existing values. It returns the number of cells that were updated.
+
 ```php
 use CeytekLabs\GoogleServicesLite\GoogleSheets;
 
@@ -49,6 +51,8 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sh
 echo 'Number of updated cells: ' . $result['updated_cells_count'];
 ```
 
+**updateInChunks:** Similar to `update`, but handles large datasets by splitting the data into smaller chunks to prevent exceeding API limits. It returns the total number of updated cells.
+
 ```php
 use CeytekLabs\GoogleServicesLite\GoogleSheets;
 
@@ -61,7 +65,22 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sh
     ], 500);                                      // Define the chunk size (e.g., 500 rows)
 
 echo 'Number of updated cells: ' . $result['updated_cells_count'];
+```
 
+**batchUpdate:** Updates specific cells in a Google Sheets tab using a batch request, allowing more granular control over each cell. It returns the status of the update (success or failure).
+
+```php
+use CeytekLabs\GoogleServicesLite\GoogleSheets;
+
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sheets document
+    ->setCredentials(__DIR__.'/credentials.json') // Set the authentication file
+    ->batchUpdate('Sheet1', [                     // Set the name of the tab where data will be updated
+        ["Data 1", "Data 2", "Data 3"],           // Add the data to be updated
+        ["Data 4", "Data 5", "Data 6"],
+        ["Data 7", "Data 8", "Data 9"],
+    ]);
+
+echo 'Batch update status: ' . ($result['status'] ? 'Success' : 'Failed');
 ```
 
 ## Contributing
