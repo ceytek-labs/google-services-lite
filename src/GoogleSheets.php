@@ -165,9 +165,12 @@ class GoogleSheets
 
         foreach ($values as $rowIndex => $row) {
             $rowData = [];
+            
             foreach ($row as $colIndex => $value) {
                 $cellData = new CellData([
-                    'userEnteredValue' => ['stringValue' => $value]
+                    'userEnteredValue' => is_numeric($value) 
+                        ? ['numberValue' => (float)$value] 
+                        : ['stringValue' => (string)$value]
                 ]);
                 $rowData[] = $cellData;
             }
