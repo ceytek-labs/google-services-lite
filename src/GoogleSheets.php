@@ -142,6 +142,8 @@ class GoogleSheets
         }
     
         $service = new Sheets($this->client);
+
+        $service->spreadsheets_values->clear($this->id, $page, new ClearValuesRequest());
     
         $spreadsheet = $service->spreadsheets->get($this->id);
 

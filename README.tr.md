@@ -1,7 +1,19 @@
 [🇬🇧 Click here for English version](README.md)
 
-![License](https://img.shields.io/github/license/ceytek-labs/google-services-lite)
-![SIZE](https://img.shields.io/github/repo-size/ceytek-labs/google-services-lite?label=size)
+<p align="center">
+    <a href="https://packagist.org/packages/ceytek-labs/google-services-lite">
+        <img alt="Total Downloads" src="https://img.shields.io/packagist/dt/ceytek-labs/google-services-lite">
+    </a>
+    <a href="https://packagist.org/packages/ceytek-labs/google-services-lite">
+        <img alt="Latest Version" src="https://img.shields.io/packagist/v/ceytek-labs/google-services-lite">
+    </a>
+    <a href="https://packagist.org/packages/ceytek-labs/google-services-lite">
+        <img alt="Size" src="https://img.shields.io/github/repo-size/ceytek-labs/google-services-lite">
+    </a>
+    <a href="https://packagist.org/packages/ceytek-labs/google-services-lite">
+        <img alt="License" src="https://img.shields.io/packagist/l/ceytek-labs/google-services-lite">
+    </a>
+</p>
 
 # Google Services Lite - PHP için Google API Kullanımı
 
