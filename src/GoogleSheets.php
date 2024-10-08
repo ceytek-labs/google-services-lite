@@ -84,7 +84,7 @@ class GoogleSheets
         ];
     }
 
-    public function updateInChunks(string $page = null, array $values = [], int $chunkSize = 500): array
+    public function updateInChunks(string $page = null, array $values = [], int $chunkSize = 10): array
     {
         if (is_null($page)) {
             throw new \Exception('Spreadsheet page must be filled');
@@ -211,7 +211,98 @@ class GoogleSheets
             'requests' => $requests
         ]);
     
-        $response = $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+        $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+    
+        return [
+            'status' => true,
+        ];
+    }
+
+    public function batchUpdateInChunks(string $page, array $values, int $chunkSize = 500): array
+    {
+        if (is_null($page)) {
+            throw new \Exception('Spreadsheet page must be filled');
+        }
+    
+        if (empty($values)) {
+            throw new \Exception('Spreadsheet values must be filled');
+        }
+    
+        $service = new Sheets($this->client);
+    
+        $service->spreadsheets_values->clear($this->id, $page, new ClearValuesRequest());
+    
+        $spreadsheet = $service->spreadsheets->get($this->id);
+    
+        $sheets = $spreadsheet->getSheets();
+    
+        $sheetId = null;
+    
+        foreach ($sheets as $sheet) {
+            if ($sheet->getProperties()->getTitle() === $page) {
+                $sheetId = $sheet->getProperties()->getSheetId();
+
+                break;
+            }
+        }
+    
+        if (is_null($sheetId)) {
+            throw new \Exception('Sheet not found: ' . $page);
+        }
+    
+        $chunks = array_chunk($values, $chunkSize);
+    
+            foreach ($chunks as $chunkIndex => $chunk) {
+                $requests = [];
+        
+                $startRowIndex = $chunkIndex * $chunkSize;
+        
+                foreach ($chunk as $rowIndex => $row) {
+                    $rowData = [];
+        
+                    foreach ($row as $colIndex => $value) {
+                        if (is_string($value)) {
+                            $detectedEncoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'Windows-1252', 'ASCII'], true);
+        
+                            if ($detectedEncoding === false) {
+                                $detectedEncoding = 'Windows-1252';
+                            }
+        
+                            $value = mb_convert_encoding($value, 'UTF-8', $detectedEncoding);
+                        }
+        
+                        $cellData = new CellData([
+                            'userEnteredValue' => is_numeric($value)
+                                ? ['numberValue' => (float) $value]
+                                : ['stringValue' => (string) $value]
+                        ]);
+        
+                        $rowData[] = $cellData;
+                    }
+        
+                    if (!empty($rowData)) {
+                        $requests[] = new Request([
+                            'updateCells' => [
+                                'start' => [
+                                    'sheetId' => $sheetId,
+                                    'rowIndex' => $startRowIndex + $rowIndex,
+                                    'columnIndex' => 0,
+                                ],
+                                'rows' => [new RowData(['values' => $rowData])],
+                                'fields' => 'userEnteredValue'
+                            ]
+                        ]);
+                    }
+                }
+        
+                if (!empty($requests)) {
+                    $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+                        'requests' => $requests
+                    ]);
+        
+                    $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+                }
+            }
     
         return [
             'status' => true,

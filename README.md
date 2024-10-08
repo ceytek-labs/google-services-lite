@@ -74,7 +74,7 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sh
         ["Data 1", "Data 2", "Data 3"],           // Add the data to be updated
         ["Data 4", "Data 5", "Data 6"],
         ["Data 7", "Data 8", "Data 9"],           // For large datasets, the data will be split into chunks
-    ], 500);                                      // Define the chunk size (e.g., 500 rows)
+    ], 50);                                       // Define the chunk size (e.g., 50 rows)
 
 echo 'Number of updated cells: ' . $result['updated_cells_count'];
 ```
@@ -93,6 +93,22 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sh
     ]);
 
 echo 'Batch update status: ' . ($result['status'] ? 'Success' : 'Failed');
+```
+
+**batchUpdateInChunks:** Similar to `batchUpdate`, but handles large datasets by splitting the data into smaller chunks to prevent exceeding API limits. It returns the status of the update (success or failure).
+
+```php
+use CeytekLabs\GoogleServicesLite\GoogleSheets;
+
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Set the ID of the Google Sheets document
+    ->setCredentials(__DIR__.'/credentials.json') // Set the authentication file
+    ->batchUpdateInChunks('Sheet1', [             // Update data in smaller chunks
+        ["Data 1", "Data 2", "Data 3"],           // Add the data to be updated
+        ["Data 4", "Data 5", "Data 6"],
+        ["Data 7", "Data 8", "Data 9"],           // For large datasets, the data will be split into chunks
+    ], 750);                                      // Define the chunk size (e.g., 750 rows)
+
+echo 'Number of updated cells: ' . $result['updated_cells_count'];
 ```
 
 ## Contributing

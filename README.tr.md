@@ -74,7 +74,7 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin ki
         ["Data 1", "Data 2", "Data 3"],           // Güncellenecek verileri ekleyin
         ["Data 4", "Data 5", "Data 6"],
         ["Data 7", "Data 8", "Data 9"],           // Büyük veri setleri durumunda veriler parçalara ayrılacak
-    ], 500);                                      // Parça boyutunu (örneğin, 500 satır) belirleyin
+    ], 50);                                       // Parça boyutunu (örneğin, 50 satır) belirleyin
 
 echo 'Güncellenen hücre sayısı: ' . $result['updated_cells_count'];
 ```
@@ -91,6 +91,22 @@ $result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin ki
         ["Veri 4", "Veri 5", "Veri 6"],
         ["Veri 7", "Veri 8", "Veri 9"],
     ]);
+
+echo 'Toplu güncelleme durumu: ' . ($result['status'] ? 'Başarılı' : 'Başarısız');
+```
+
+**batchUpdateInChunks:** `batchUpdate` ile benzer şekilde çalışır ancak büyük veri setlerini daha küçük parçalara ayırarak API limitlerini aşmadan işler. Güncelleme durumunu (başarı ya da başarısızlık) döndürür.
+
+```php
+use CeytekLabs\GoogleServicesLite\GoogleSheets;
+
+$result = GoogleSheets::make('SPREADSHEET_ID')    // Google Sheets belgesinin kimliğini belirleyin
+    ->setCredentials(__DIR__.'/credentials.json') // Kimlik doğrulama dosyasını ayarlayın
+    ->batchUpdateInChunks('Sheet1', [             // Verilerin güncelleneceği sekmenin adını belirleyin
+        ["Veri 1", "Veri 2", "Veri 3"],           // Güncellenecek verileri ekleyin
+        ["Veri 4", "Veri 5", "Veri 6"],
+        ["Veri 7", "Veri 8", "Veri 9"],           // Büyük veri setleri durumunda veriler parçalara ayrılacak
+    ], 750);                                      // Parça boyutunu (örneğin, 750 satır) belirleyin
 
 echo 'Toplu güncelleme durumu: ' . ($result['status'] ? 'Başarılı' : 'Başarısız');
 ```
