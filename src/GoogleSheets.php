@@ -151,9 +151,13 @@ class GoogleSheets
     
         $sheetId = null;
 
+        $rowCount = null;
+
         foreach ($sheets as $sheet) {
             if ($sheet->getProperties()->getTitle() === $page) {
                 $sheetId = $sheet->getProperties()->getSheetId();
+
+                $rowCount = $sheet->getProperties()->getGridProperties()->getRowCount();
 
                 break;
             }
@@ -161,6 +165,26 @@ class GoogleSheets
     
         if (is_null($sheetId)) {
             throw new \Exception('Sheet not found: ' . $page);
+        }
+
+        $valuesRowCount = count($values);
+
+        if ($valuesRowCount > $rowCount) {
+            $newRows = $valuesRowCount - $rowCount;
+
+            $requests[] = new Request([
+                'appendDimension' => [
+                    'sheetId' => $sheetId,
+                    'dimension' => 'ROWS',
+                    'length' => $newRows
+                ]
+            ]);
+
+            $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+                'requests' => $requests
+            ]);
+
+            $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
         }
     
         $requests = [];
@@ -237,10 +261,14 @@ class GoogleSheets
         $sheets = $spreadsheet->getSheets();
     
         $sheetId = null;
+
+        $rowCount = null;
     
         foreach ($sheets as $sheet) {
             if ($sheet->getProperties()->getTitle() === $page) {
                 $sheetId = $sheet->getProperties()->getSheetId();
+
+                $rowCount = $sheet->getProperties()->getGridProperties()->getRowCount();
 
                 break;
             }
@@ -248,6 +276,26 @@ class GoogleSheets
     
         if (is_null($sheetId)) {
             throw new \Exception('Sheet not found: ' . $page);
+        }
+
+        $valuesRowCount = count($values);
+
+        if ($valuesRowCount > $rowCount) {
+            $newRows = $valuesRowCount - $rowCount;
+
+            $requests[] = new Request([
+                'appendDimension' => [
+                    'sheetId' => $sheetId,
+                    'dimension' => 'ROWS',
+                    'length' => $newRows
+                ]
+            ]);
+
+            $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+                'requests' => $requests
+            ]);
+
+            $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
         }
     
         $chunks = array_chunk($values, $chunkSize);
