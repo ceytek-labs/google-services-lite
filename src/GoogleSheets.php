@@ -153,11 +153,15 @@ class GoogleSheets
 
         $rowCount = null;
 
+        $columnCount = null;
+
         foreach ($sheets as $sheet) {
             if ($sheet->getProperties()->getTitle() === $page) {
                 $sheetId = $sheet->getProperties()->getSheetId();
 
                 $rowCount = $sheet->getProperties()->getGridProperties()->getRowCount();
+
+                $columnCount = $sheet->getProperties()->getGridProperties()->getColumnCount();
 
                 break;
             }
@@ -177,6 +181,34 @@ class GoogleSheets
                     'sheetId' => $sheetId,
                     'dimension' => 'ROWS',
                     'length' => $newRows
+                ]
+            ]);
+
+            $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+                'requests' => $requests
+            ]);
+
+            $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+        }
+
+        $maxColumnCount = 0;
+
+        foreach ($values as $row) {
+            $currentColumnCount = count($row);
+
+            if ($currentColumnCount > $maxColumnCount) {
+                $maxColumnCount = $currentColumnCount;
+            }
+        }
+
+        if ($maxColumnCount > $columnCount) {
+            $newColumns = $maxColumnCount - $columnCount;
+
+            $requests[] = new Request([
+                'appendDimension' => [
+                    'sheetId' => $sheetId,
+                    'dimension' => 'COLUMNS',
+                    'length' => $newColumns
                 ]
             ]);
 
@@ -263,12 +295,16 @@ class GoogleSheets
         $sheetId = null;
 
         $rowCount = null;
+
+        $columnCount = null;
     
         foreach ($sheets as $sheet) {
             if ($sheet->getProperties()->getTitle() === $page) {
                 $sheetId = $sheet->getProperties()->getSheetId();
 
                 $rowCount = $sheet->getProperties()->getGridProperties()->getRowCount();
+
+                $columnCount = $sheet->getProperties()->getGridProperties()->getColumnCount();
 
                 break;
             }
@@ -288,6 +324,34 @@ class GoogleSheets
                     'sheetId' => $sheetId,
                     'dimension' => 'ROWS',
                     'length' => $newRows
+                ]
+            ]);
+
+            $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+                'requests' => $requests
+            ]);
+
+            $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+        }
+
+        $maxColumnCount = 0;
+
+        foreach ($values as $row) {
+            $currentColumnCount = count($row);
+
+            if ($currentColumnCount > $maxColumnCount) {
+                $maxColumnCount = $currentColumnCount;
+            }
+        }
+
+        if ($maxColumnCount > $columnCount) {
+            $newColumns = $maxColumnCount - $columnCount;
+
+            $requests[] = new Request([
+                'appendDimension' => [
+                    'sheetId' => $sheetId,
+                    'dimension' => 'COLUMNS',
+                    'length' => $newColumns
                 ]
             ]);
 
