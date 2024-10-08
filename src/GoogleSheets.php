@@ -252,57 +252,57 @@ class GoogleSheets
     
         $chunks = array_chunk($values, $chunkSize);
     
-            foreach ($chunks as $chunkIndex => $chunk) {
-                $requests = [];
-        
-                $startRowIndex = $chunkIndex * $chunkSize;
-        
-                foreach ($chunk as $rowIndex => $row) {
-                    $rowData = [];
-        
-                    foreach ($row as $colIndex => $value) {
-                        if (is_string($value)) {
-                            $detectedEncoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'Windows-1252', 'ASCII'], true);
-        
-                            if ($detectedEncoding === false) {
-                                $detectedEncoding = 'Windows-1252';
-                            }
-        
-                            $value = mb_convert_encoding($value, 'UTF-8', $detectedEncoding);
+        foreach ($chunks as $chunkIndex => $chunk) {
+            $requests = [];
+    
+            $startRowIndex = $chunkIndex * $chunkSize;
+    
+            foreach ($chunk as $rowIndex => $row) {
+                $rowData = [];
+    
+                foreach ($row as $colIndex => $value) {
+                    if (is_string($value)) {
+                        $detectedEncoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'Windows-1252', 'ASCII'], true);
+    
+                        if ($detectedEncoding === false) {
+                            $detectedEncoding = 'Windows-1252';
                         }
-        
-                        $cellData = new CellData([
-                            'userEnteredValue' => is_numeric($value)
-                                ? ['numberValue' => (float) $value]
-                                : ['stringValue' => (string) $value]
-                        ]);
-        
-                        $rowData[] = $cellData;
+    
+                        $value = mb_convert_encoding($value, 'UTF-8', $detectedEncoding);
                     }
-        
-                    if (!empty($rowData)) {
-                        $requests[] = new Request([
-                            'updateCells' => [
-                                'start' => [
-                                    'sheetId' => $sheetId,
-                                    'rowIndex' => $startRowIndex + $rowIndex,
-                                    'columnIndex' => 0,
-                                ],
-                                'rows' => [new RowData(['values' => $rowData])],
-                                'fields' => 'userEnteredValue'
-                            ]
-                        ]);
-                    }
-                }
-        
-                if (!empty($requests)) {
-                    $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
-                        'requests' => $requests
+    
+                    $cellData = new CellData([
+                        'userEnteredValue' => is_numeric($value)
+                            ? ['numberValue' => (float) $value]
+                            : ['stringValue' => (string) $value]
                     ]);
-        
-                    $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+    
+                    $rowData[] = $cellData;
+                }
+    
+                if (!empty($rowData)) {
+                    $requests[] = new Request([
+                        'updateCells' => [
+                            'start' => [
+                                'sheetId' => $sheetId,
+                                'rowIndex' => $startRowIndex + $rowIndex,
+                                'columnIndex' => 0,
+                            ],
+                            'rows' => [new RowData(['values' => $rowData])],
+                            'fields' => 'userEnteredValue'
+                        ]
+                    ]);
                 }
             }
+    
+            if (!empty($requests)) {
+                $batchUpdateRequest = new BatchUpdateSpreadsheetRequest([
+                    'requests' => $requests
+                ]);
+    
+                $service->spreadsheets->batchUpdate($this->id, $batchUpdateRequest);
+            }
+        }
     
         return [
             'status' => true,
