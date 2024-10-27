@@ -1,21 +1,38 @@
 {
     "name": "ceytek-labs/google-services-lite",
-    "description": "Google Services Lite - Google API for PHP",
+    "description": "A lightweight library for seamless integration with various Google APIs in PHP.",
+    "keywords": [
+        "Google Services",
+        "Google Sheets",
+        "Google API",
+        "data updates",
+        "sheets automation",
+        "PHP",
+        "lite library",
+        "google-services-lite",
+        "automation"
+    ],
+    "homepage": "https://github.com/ceytek-labs/google-services-lite",
     "type": "library",
-    "require": {
-        "php": "^7.0",
-        "google/apiclient": "^2.0"
-    },
     "license": "MIT",
+    "authors": [
+        {
+            "name": "ceyhun-celik",
+            "email": "ceyhunbcelik@icloud.com",
+            "role": "Developer"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "CeytekLabs\\GoogleServicesLite\\": "src/"
         }
     },
-    "authors": [
-        {
-            "name": "ceyhun-celik",
-            "email": "ceyhunbcelik@icloud.com"
-        }
-    ]
+    "require": {
+        "php": "^7.0",
+        "google/apiclient": "^2.0"
+    },
+    "support": {
+        "issues": "https://github.com/ceytek-labs/google-services-lite/issues",
+        "source": "https://github.com/ceytek-labs/google-services-lite"
+    }
 }
