@@ -42,7 +42,7 @@ This package offers a streamlined integration with the Google Sheets API for PHP
 
 ### Example Usage
 
-The following example demonstrates how to update data in a **Google Sheets** document:
+The following example demonstrates how to manage data in a **Google Sheets** document:
 
 **[⬆ Back to services](#services)**
 
